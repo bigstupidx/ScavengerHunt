@@ -1,0 +1,49 @@
+.game-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.create-form {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 50%;
+    height: 50%;  
+
+    border: 1px solid grey;
+    border-radius: 1em;
+
+    background-color: white;
+
+    /* shadow effect */
+    -webkit-box-shadow: 0 10px 6px -6px #777;
+    -moz-box-shadow: 0 10px 6px -6px #777;
+    box-shadow: 0 10px 6px -6px #777;
+}
+
+.user-prompt {
+    width:70%;
+    padding-bottom: 30px;
+    text-align: center;
+}
+
+.field {
+    border-radius: 5px;
+    border-color: grey;
+
+    margin: 20px;
+    width: 200px;
+    padding: 5px 4px;
+
+    font-size: 1.4em;
+}
+
+.field-description {
+    font-size: .8em;
+}
+

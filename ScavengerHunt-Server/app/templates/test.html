@@ -1,0 +1,30 @@
+<head>
+    <button onCLick="make_player()">connection</button>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.2/socket.io.js"></script>
+    <script type="text/javascript">
+        let ws = io.connect();
+
+        window.onunload = function() {
+            ws.disconnect();
+        }
+
+        function make_player() {
+            num = Math.floor((Math.random() * 10));
+            ws.emit('connection', {data: {type:'player', name:'P'+num}});
+        }
+
+        ws.on('connect', function(msg) {
+            console.log("CONNECTED");
+        });
+
+        ws.on('connection', function(msg){
+            console.log("CONNECTION");
+            console.log(msg.data);
+        });
+
+        ws.on('rank', function(msg){
+            console.log("RANK");
+            console.log(msg.data);
+        });
+    </script>
+</head>

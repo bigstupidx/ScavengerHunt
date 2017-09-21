@@ -1,0 +1,72 @@
+<android.support.v7.widget.CardView
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/card_view"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardCornerRadius="4dp"
+    android:layout_margin="5dp">
+
+    <LinearLayout
+        android:background="#ffffff"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="5dp"
+        android:layout_marginLeft="5dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/txtName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/white"
+                android:textStyle="bold"
+                android:text="Name"
+                android:gravity="center_vertical"
+                android:textColor="#045160"
+                android:textSize="18sp"
+                android:layout_margin="2dp"/>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Description"
+                android:gravity="center_vertical"
+                android:textSize="12sp"
+                android:textColor="#045160"
+                android:layout_margin="2dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_gravity="right|center_vertical"
+            android:gravity="right"
+            android:layout_margin="3dp">
+            <ImageButton
+                android:id="@+id/ib_camera"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="#ffffff"
+                android:tint="#9ad7e2"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_camera_alt"
+                android:layout_marginRight="5dp"/>
+            <ImageButton
+                android:id="@+id/ib_map"
+                android:layout_width="35dp"
+                android:layout_height="35dp"
+                android:background="#ffffff"
+                android:tint="#9ad7e2"
+                android:scaleType="fitXY"
+                android:src="@drawable/ic_location_on_black_24dp"/>
+        </LinearLayout>
+
+
+    </LinearLayout>
+</android.support.v7.widget.CardView>

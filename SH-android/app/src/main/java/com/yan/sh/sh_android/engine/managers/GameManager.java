@@ -30,11 +30,11 @@ public class GameManager extends Manager {
         this.startup();
     }
 
+    //Called when JSON is returned when we try to enter a game (new / returning)
     public void storeGameData(JSONObject data, String newGameCode){
         if(data == null || newGameCode == null){
             return;
         }
-
         gameCode = newGameCode;
         try{
             JSONArray objectives = data.getJSONArray("data");
@@ -54,6 +54,7 @@ public class GameManager extends Manager {
         return gameCode;
     }
 
+    //set the players rank in the game
     public Boolean setRank(Integer rank, Integer players){
         if(rank != null && players !=null && rank <= players){
             this.rank = rank;
@@ -63,6 +64,7 @@ public class GameManager extends Manager {
         return false;
     }
 
+    //generate output for the players rank
     public String createRankText(){
         if(rank == null || numPlayers == null){
             return "";

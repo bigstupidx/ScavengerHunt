@@ -19,9 +19,11 @@ import android.widget.TextView;
 
 import com.yan.sh.sh_android.R;
 import com.yan.sh.sh_android.engine.Engine;
+import com.yan.sh.sh_android.engine.EngineGlobal;
 import com.yan.sh.sh_android.engine.objects.Objective;
 import com.yan.sh.sh_android.ui.ObjectiveScrollView.ObjectiveAdapter;
 
+import com.yan.sh.sh_android.util.SntpClient;
 import com.yan.sh.sh_android.util.Utilities;
 
 import timber.log.Timber;
@@ -45,7 +47,7 @@ public class DashboardActivity extends AppCompatActivity {
         objectiveAdapter = new ObjectiveAdapter(this, Engine.objective().getObjectives());
         recyclerView.setAdapter(objectiveAdapter);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(onObjectivesChange, new IntentFilter("OBJECTIVE_CHANGE"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(onObjectivesChange, new IntentFilter(EngineGlobal.LOCAL_OBJECTIVE_CHANGE));
 
         calculateUI();
     }
@@ -84,6 +86,7 @@ public class DashboardActivity extends AppCompatActivity {
         return true;
     }
 
+    //Generate text for Objectives Remaining
     private void calculateUI(){
         //TODO: add time calculation
         if(Engine.objective().getObjectives() == null){
@@ -108,6 +111,14 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        Engine.time().runTimeCheck();
+        super.onResume();
+    }
+
+
+    //When we take a picture of an objective, it comes back to function call
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(data == null){
@@ -124,9 +135,20 @@ public class DashboardActivity extends AppCompatActivity {
         Bitmap image = (Bitmap) data.getExtras().get("data");
         String fileName = Engine.user().getUuid()+"_"+captured.getObjectiveId();
         String url = Utilities.saveBitmap(image, this, fileName+".jpg");
-        Engine.cloud().uploadPicture(url, fileName, captured.getObjectiveId());
+
+        //Upload the bitmap image to cloudinary if we have network access, else we back it up
+        if(Engine.hardware().hasNetworkAccess()){
+            Engine.cloud().uploadPicture(url, fileName, captured.getObjectiveId());
+        }else{
+            Engine.data().recordObjective(captured.getObjectiveId(), Double.toString(Engine.time().now()),
+                    url, fileName, Engine.game().getGameCode(), Engine.user().getUuid());
+        }
+
     }
 
+    //When user presses back, it'll take them back to the login screen. We then
+    //throw a prompt warning them of the consequences (all game data is saved so user can
+    //return anytime though)
     @Override
     public void onBackPressed() {
         Timber.i("on back pressed");

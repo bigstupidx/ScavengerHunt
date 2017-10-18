@@ -26,6 +26,7 @@ public class Objective {
         if (object == null){
             return;
         }
+        Timber.i(object.toString());
 
         try{
             objectiveId = object.getString("id");
@@ -33,7 +34,7 @@ public class Objective {
             description = object.getString("description");
 
             lat = object.getJSONObject("location").getDouble("lat");
-            lon = object.getJSONObject("location").getDouble("lng");
+            lon = object.getJSONObject("location").getDouble("long");
 
             Timber.i(name);
         }catch (JSONException err){

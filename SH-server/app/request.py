@@ -11,9 +11,9 @@ print game1.key
 game1.add_player('Yan', '')
 game1.add_player('Sas', '')
 
-game1.add_objective({"lat": 40.633388, "long": -73.931379}, "TEST_OBJ_1", "description")
-game1.add_objective({"lat": 40.632397, "long": -73.931349}, "TEST_OBJ_2", "description2")
-game1.add_objective({"lat": 40.632377, "long": -73.931364}, "TEST_OBJ_3", "description2")
+game1.add_objective({"lat": 40.633388, "long": -73.931379}, "TEST_OBJECTIVE_1", "description1")
+game1.add_objective({"lat": 40.632397, "long": -73.931349}, "TEST_OBJECTIVE_2", "description2")
+game1.add_objective({"lat": 40.632377, "long": -73.931364}, "TEST_OBJECTIVE_3", "description3")
 
 for o in game1.objective_list():
     print o.id

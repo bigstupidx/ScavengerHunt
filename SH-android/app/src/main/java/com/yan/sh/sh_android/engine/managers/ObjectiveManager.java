@@ -5,13 +5,17 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.yan.sh.sh_android.engine.Engine;
+import com.yan.sh.sh_android.engine.EngineGlobal;
 import com.yan.sh.sh_android.engine.objects.Objective;
+import com.yan.sh.sh_android.engine.objects.UnsyncedObjective;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import timber.log.Timber;
 
@@ -30,6 +34,7 @@ public class ObjectiveManager extends Manager {
         mContext = context;
     }
 
+    //Generate objectives based on a JSON response from server
     public void loadObjectives(JSONArray objectives){
         if(userObjectives != null){
             userObjectives.clear();
@@ -73,6 +78,7 @@ public class ObjectiveManager extends Manager {
         return userObjectives.get(index);
     }
 
+    //Mark an objective as complete
     public void completingObjective(String objectiveId, String url){
         Objective completedObjective = getObjectiveById(objectiveId);
 
@@ -81,8 +87,10 @@ public class ObjectiveManager extends Manager {
             return;
         }
 
-        completedObjective.setPictureUrl(url);
-        completedObjective.setAsCompleted(System.currentTimeMillis()/1000);
+        if(url != null){
+            completedObjective.setPictureUrl(url);
+        }
+        completedObjective.setAsCompleted((long)Engine.time().now());
 
         for(int i = 0; i < userObjectives.size() ; i++){
             if(userObjectives.get(i).getObjectiveId().equals(objectiveId)){
@@ -96,36 +104,53 @@ public class ObjectiveManager extends Manager {
         Engine.socket().sendCompletedObjective(completedObjective);
     }
 
-    public void updateObjectives(JSONArray objectives){
-        for(int i = 0; i < objectives.length(); i++){
-            try{
-                JSONObject objective = objectives.getJSONObject(i);
-                for(int j = 0; j < userObjectives.size() ; j++){
-                    if(userObjectives.get(j).getObjectiveId().equals(objective.getString("id"))){
-                        Objective complete = userObjectives.get(j);
-                        complete.setAsCompleted(objective.getLong("time"));
-                        complete.setPictureUrl(objective.getString("url").replace("\\", ""));
-                        Timber.i("new url : " + complete.getPictureUrl());
+    //Update objectives with JSON response from the server
+    public void updateObjectives(JSONObject objectives){
+        if(objectives == null){
+            return;
+        }
 
-                        userObjectives.remove(j);
-                        userObjectives.add(complete);
-                        break;
+        try{
+            for(int i = 0; i < objectives.names().length(); i++){
+                String key = objectives.names().getString(i);
+                JSONObject objective = objectives.getJSONObject(key);
+                for(Objective userObjective : userObjectives){
+                    if(userObjective.getObjectiveId().equals(key)){
+                        userObjective.setAsCompleted(objective.getLong("time"));
+                        userObjective.setPictureUrl(objective.getString("url").replace("\\",""));
+                        Timber.i("objective updated!");
                     }
                 }
-            } catch (JSONException ex){
-                Timber.e(ex, "JSON error");
             }
+        }catch(JSONException e) {
+            Timber.e("Update Obj Err:" + e.toString());
         }
 
         onObjectiveUpdate();
     }
 
+    //Send a local broadcast, indicating objectives were updated
     private void onObjectiveUpdate(){
         Intent objectiveChange = new Intent();
-        objectiveChange.setAction("OBJECTIVE_CHANGE");
+        objectiveChange.setAction(EngineGlobal.LOCAL_OBJECTIVE_CHANGE);
 
         //send local broadcast
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
         localBroadcastManager.sendBroadcast(objectiveChange);
+    }
+
+    //Sync unsynced objectives saved in the SQLite database
+    private void processUnsyncedObjectives(){
+        List<UnsyncedObjective> unsyncedObjectives = Engine.data().getUnsyncedObjectives();
+        if(unsyncedObjectives == null || unsyncedObjectives.isEmpty()){
+            return;
+        }
+
+        for(UnsyncedObjective obj : unsyncedObjectives){
+            //ensure that we only sync objectives if the same user has returned to the same game
+            if(obj.getGameId().equals(Engine.game().getGameCode()) && obj.getUserId().equals(Engine.user().getUuid())){
+                Engine.cloud().uploadPicture(obj.getPictureUrl(), obj.getFileName(), obj.getObjectiveId());
+            }
+        }
     }
 }

@@ -26,6 +26,7 @@ import android.widget.TextView;
 
 import com.yan.sh.sh_android.R;
 import com.yan.sh.sh_android.engine.Engine;
+import com.yan.sh.sh_android.engine.EngineGlobal;
 import com.yan.sh.sh_android.services.ScavengerHuntService;
 import com.yan.sh.sh_android.util.TimberTree;
 
@@ -60,8 +61,8 @@ public class LoginActivity extends AppCompatActivity {
         Intent serviceIntent = new Intent(this, ScavengerHuntService.class);
         startService(serviceIntent);
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(onNetworkChange, new IntentFilter("NETWORK_CHANGE"));
-        LocalBroadcastManager.getInstance(this).registerReceiver(onLocationChange, new IntentFilter("LOCATION_CHANGE"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(onNetworkChange, new IntentFilter(EngineGlobal.LOCAL_NETWORK_CHANGE));
+        LocalBroadcastManager.getInstance(this).registerReceiver(onLocationChange, new IntentFilter(EngineGlobal.LOCAL_LOCATION_CHANGE));
 
         gameCode = (EditText) findViewById(R.id.et_game_code);
         joinGame = (Button) findViewById(R.id.bt_join_game);
@@ -126,6 +127,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //Check if Wifi and Location are enabled
     private void refreshLoginUI(){
         if(!Engine.hardware().hasNetworkAccess()) {
             wifi.setVisibility(View.INVISIBLE);
@@ -160,7 +162,9 @@ public class LoginActivity extends AppCompatActivity {
         onJoinGame(Engine.data().getGameData());
     }
 
+    //Load game data from inputted game code
     public void onJoinGame(final String gameCode){
+        //TODO: show loading UI / end loading UI after
         Engine.network().getGameData(gameCode, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -195,6 +199,8 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+
+    //Throw error if failure to enter game
     private void onInitializationError(){
         runOnUiThread(new Runnable() {
             @Override
@@ -209,6 +215,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
 
+    //Enter dashboard activity if successfully entered game
     private void onInitializationSuccess(){
         runOnUiThread(new Runnable() {
             @Override
@@ -219,6 +226,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //Prompts user to re-enter game as past user or re-start progress
     private void drawChangeUserDialog(){
         runOnUiThread(new Runnable() {
             @Override
@@ -245,6 +253,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
+    //If no past user, prompt user to enter game as new user
     private void drawAlertDialog(){
         runOnUiThread(new Runnable() {
             @Override

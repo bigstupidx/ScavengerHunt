@@ -2,7 +2,7 @@ import React from 'react';
 import { Field, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
-import './GameForm.css';
+import './Form.css';
 
 const GameForm = ({ handleSubmit }) => {
     return (
@@ -21,7 +21,7 @@ const GameForm = ({ handleSubmit }) => {
             <button type='submit' className='button -regular -green'>Create!</button>
         </form>
     </div>
-  )
+    )
 }
 
 GameForm.PropTypes = {

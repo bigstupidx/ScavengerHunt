@@ -33,6 +33,7 @@ public class CloudinaryManager extends Manager {
         this.startup();
     }
 
+    //Upload objective picture to the cloud, the immediately attempt to complete the objective
     public void uploadPicture(final String url, final String fileName, final String objectiveId){
         Executors.newSingleThreadExecutor().execute(new Runnable() {
             @Override

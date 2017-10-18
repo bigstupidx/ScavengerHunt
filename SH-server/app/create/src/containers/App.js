@@ -4,9 +4,11 @@ import { connect } from 'react-redux';
 import * as constants from '../constants';
 
 import OnBoard from './OnBoard';
-import TrackPage from './TrackPage';
 import GameFormPage from './GameFormPage';
+import TrackPage from './TrackPage';
 import ObjectiveSetup from './ObjectiveSetup';
+import TrackFormPage from './TrackFormPage';
+import TrackData from './TrackData';
 
 const App = ({ state }) => (
     <div className='App'>
@@ -14,6 +16,8 @@ const App = ({ state }) => (
         {state === constants.CREATE_STATE && <GameFormPage />}
         {state === constants.TRACK_STATE && <TrackPage />}
         {state === constants.OBJECTIVE_SETUP_STATE && <ObjectiveSetup />}
+        {state === constants.TRACK_FORM_STATE && <TrackFormPage />}
+        {state === constants.TRACK_STATE && <TrackData />}
     </div>
 )
 

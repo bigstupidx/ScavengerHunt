@@ -8,10 +8,7 @@ export const createGame = (gameInfo) => ({
     gameInfo,
 });
 
-export const updateStats = (gameStats) => ({
-    type: 'UPDATE_STATS',
-    gameStats: {
-        playerStats: gameStats.player_stats,
-        objectiveStats: gameStats.objective_stats,
-    },
+export const updateStats = (stats) => ({
+	type: 'UPDATE_STATS',
+	stats,
 });

@@ -53,8 +53,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         //add back button
         getActionBar().setHomeButtonEnabled(true);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-
-
     }
 
     @Override
@@ -78,6 +76,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //When the Google Maps API is ready, we can then create objective markers, set current
+    // user location and zoom to bound
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -95,6 +95,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         zoomToBounds();
     }
 
+    //Check app permission for user permission. If not available, we prompt user for permission
     private void enableLocation(){
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION);
         if(permissionCheck == PackageManager.PERMISSION_GRANTED){
@@ -105,6 +106,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //Call back for enableLocation()'s request for location permission
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
         switch (requestCode) {
@@ -118,6 +120,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //Generate location UI pins based on objective parameter
     private void createObjectiveMarkers(){
         if(focusedObjective != null){
             LatLng latLng = new LatLng(focusedObjective.getLat(), focusedObjective.getLon());
@@ -140,6 +143,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
     }
 
+    //Zoom the map UI to contain all the objective parameters and the current user location
     private void zoomToBounds(){
         //check if we have a focused objective
         if(focusedObjective != null){
@@ -188,7 +192,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 lonBot = latLng.longitude;
             }
         }
-        Timber.i(latTop.toString() + latBot.toString() + lonTop.toString() + lonBot.toString());
+
         LatLng northEast = new LatLng(latTop, lonTop);
         LatLng southWest = new LatLng(latBot, lonBot);
 
@@ -196,6 +200,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.moveCamera(CameraUpdateFactory.newLatLngBounds(new LatLngBounds(southWest, northEast), padding));
     }
 
+    //returns the last known location of current Android user
     private Location getLastKnownLocation() {
         LocationManager mLocationManager;
         mLocationManager = (LocationManager)getApplicationContext().getSystemService(LOCATION_SERVICE);
@@ -207,7 +212,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 continue;
             }
             if (bestLocation == null || l.getAccuracy() < bestLocation.getAccuracy()) {
-                // Found best last known location: %s", l);
                 bestLocation = l;
             }
         }

@@ -2,6 +2,10 @@ import * as constants from '../constants';
 
 const initialState = {
     appState: constants.ONBOARD_STATE,
+    stats: {
+        player_stats: [],
+        objective_stats: [],
+    },
 }
 
 const gameInfo = (state = initialState, action) => {
@@ -11,16 +15,19 @@ const gameInfo = (state = initialState, action) => {
             ...state,
             appState: action.state,
         };
+        
     case 'CREATE_GAME':
         return {
             ...state,
             ...action.gameInfo,
         };
+
     case 'UPDATE_STATS':
         return {
             ...state,
-            ...action.gameStats,
+            stats: action.stats,
         };
+
     default:
         return state;
     }

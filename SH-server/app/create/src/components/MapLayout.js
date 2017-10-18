@@ -3,7 +3,7 @@ import ReactLoading from 'react-loading';
 import { withGoogleMap, GoogleMap, Marker, InfoWindow} from 'react-google-maps';
 import AddObjectiveDialog from './AddObjectiveDialog';
 import { post } from '../http';
-import { ADD_OBJECTIVE_ENDPOINT } from '../constants';
+import { ADD_OBJECTIVE_ENDPOINT, DELETE_OBJECTIVE_ENDPOINT } from '../constants';
 
 const googleMapURL="https://maps.googleapis.com/maps/api/js?v=3.27&libraries=places,geometry&key=AIzaSyBMc_L847oGm0yvye5IsYGyQnfWGs1ryq4";
 
@@ -18,7 +18,7 @@ const GoogleMapComponent = withGoogleMap(props => (
         {props.markers.map(marker => (
             <Marker {...marker}>
                 <InfoWindow>
-                    <div> {marker.key} </div>
+                    <div> {marker.key} <img data={marker.deleteObjective} onClick = {props.remove} src="https://maxcdn.icons8.com/Share/icon/Editing//delete1600.png"/> </div>
                 </InfoWindow>
             </Marker>
         ))}
@@ -38,6 +38,7 @@ export default class MapLayout extends React.Component {
         this.handleMapClick = this.handleMapClick.bind(this);
         this.handleCloseObjective = this.handleCloseObjective.bind(this);
         this.handleObjectiveSubmit = this.handleObjectiveSubmit.bind(this);
+        this.removeObjective = this.removeObjective.bind(this);
     }
 
     handleMapClick(event){
@@ -56,6 +57,24 @@ export default class MapLayout extends React.Component {
         });
     }
 
+    removeObjective(event){
+        var id = event.target.getAttribute('data');
+        post.call(this, DELETE_OBJECTIVE_ENDPOINT, {game_id: this.props.gameKey, objective_id: id}, (response)=>{
+            let updatedMarkers = this.state.markers.slice();
+            for(var i = 0; i < updatedMarkers.length; i++){
+                if(updatedMarkers[i].deleteObjective == id){
+                    updatedMarkers.splice(i, 1);
+                }
+            }
+            this.setState({
+                markers: updatedMarkers,
+                selectedLat: null,
+                selectedLng: null,
+            });
+            console.log("remove objective");
+        });
+    }
+
     handleObjectiveSubmit(objective_form){
         const location = {lat: this.state.selectedLat, lng: this.state.selectedLng};
         const objective = {
@@ -64,14 +83,14 @@ export default class MapLayout extends React.Component {
         };
         const data = {game_id: this.props.gameKey, objective};
 
-        post(ADD_OBJECTIVE_ENDPOINT, data, (response)=>{
+        post.call(this, ADD_OBJECTIVE_ENDPOINT, data, (response)=>{
             console.log('Objective response: ' , response);
-            //handle non 200 responses later
 
             let newMarkers = this.state.markers.slice();
             let marker = {
                 position: location,
-                key: objective.name
+                key: objective.name,
+                deleteObjective: response.id
             };
 
             newMarkers.push(marker);
@@ -91,6 +110,7 @@ export default class MapLayout extends React.Component {
                 mapElement={ <div style={{ height: '100%' }}/> }
                 onMapClick = {this.handleMapClick}
                 markers = {this.state.markers}
+                remove = {this.removeObjective}
             />
 
             {this.state.selectedLat != null ? (<AddObjectiveDialog lat={this.state.selectedLat} lng={this.state.selectedLng} submit={this.handleObjectiveSubmit} close={this.handleCloseObjective}/>) : (<div></div>)}

@@ -134,6 +134,7 @@ def add_objective():
 
         return jsonify({
             'status': 200,
+            'id': objective.id
         })
 
     except:
@@ -190,6 +191,7 @@ def game_stats():
 
             objective_stats.append({
                 'id': objective.id,
+                'name': objective.name,
                 'players_complete': players_complete
             })
 

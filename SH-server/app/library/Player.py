@@ -18,7 +18,7 @@ class Player:
         self.id = str(uuid.uuid1())
         self.name = name
         self.game_key = game_key
-        self.objectives_complete = []
+        self.objectives_complete = {}
         self.sid = sid
         self.active = True
         self.score = 0
@@ -41,11 +41,10 @@ class Player:
         Player.__player_map[self.sid] = self
 
     def complete_objective(self, objective_id, time, url):
-        self.objectives_complete.append({
-            'id': objective_id,
+        self.objectives_complete[objective_id] = {
             'time': time,
             'url': url
-        })
+        }
 
     def serialize(self):
         return {

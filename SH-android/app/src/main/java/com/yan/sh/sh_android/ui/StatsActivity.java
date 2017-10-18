@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.yan.sh.sh_android.R;
 import com.yan.sh.sh_android.engine.Engine;
+import com.yan.sh.sh_android.engine.EngineGlobal;
 import com.yan.sh.sh_android.ui.ObjectiveScrollView.CompletedObjectiveAdapter;
 
 import timber.log.Timber;
@@ -28,12 +29,14 @@ public class StatsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_stats);
         rank = (TextView) findViewById(R.id.tv_ranking);
+
         //TODO: getActionBar().setTitle("My Stats");
 
-        LocalBroadcastManager.getInstance(this).registerReceiver(onRankUpdate, new IntentFilter("RANK_CHANGE"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(onRankUpdate, new IntentFilter(EngineGlobal.LOCAL_RANK_CHANGE));
 
         //TODO: cache rank
 
+        //Once again, populate the UI with scrolling list of objectives completed
         recyclerView = (RecyclerView) findViewById(R.id.rv_objective_completed);
         recyclerView.setHasFixedSize(true);
 
@@ -50,11 +53,13 @@ public class StatsActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    //Requests new ranking from server
     private void getRank(){
         Engine.socket().openSocket();
         Engine.socket().sendSocketMessage("rank", null);
     }
 
+    //When new ranking has been received, we can update
     BroadcastReceiver onRankUpdate = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

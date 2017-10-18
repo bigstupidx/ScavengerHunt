@@ -1,9 +1,8 @@
 {
-  "main.css": "static/css/main.0b737b1c.css",
-  "main.css.map": "static/css/main.0b737b1c.css.map",
-  "main.js": "static/js/main.878336aa.js",
-  "main.js.map": "static/js/main.878336aa.js.map",
-  "static/media/MapBackground3.png": "static/media/MapBackground3.1bb23416.png",
-  "static/media/logo.png": "static/media/logo.db1ca74e.png",
-  "static/media/mapBackground2.png": "static/media/mapBackground2.bb140975.png"
+  "main.css": "static/css/main.1ef0bc0c.css",
+  "main.css.map": "static/css/main.1ef0bc0c.css.map",
+  "main.js": "static/js/main.b7e95483.js",
+  "main.js.map": "static/js/main.b7e95483.js.map",
+  "static\\media\\MapBackground.png": "static/media/MapBackground.1bb23416.png",
+  "static\\media\\logo.png": "static/media/logo.db1ca74e.png"
 }

@@ -10,6 +10,7 @@ import com.yan.sh.sh_android.engine.managers.HardwareManager;
 import com.yan.sh.sh_android.engine.managers.NetworkManager;
 import com.yan.sh.sh_android.engine.managers.ObjectiveManager;
 import com.yan.sh.sh_android.engine.managers.SocketManager;
+import com.yan.sh.sh_android.engine.managers.TimeManager;
 import com.yan.sh.sh_android.engine.managers.UserManager;
 
 import java.net.Socket;
@@ -28,6 +29,7 @@ public class Engine {
     private ObjectiveManager objective;
     private BroadcastManager broadcast;
     private CloudinaryManager cloud;
+    private TimeManager time;
 
     private boolean started = false;
 
@@ -78,6 +80,8 @@ public class Engine {
 
     public static CloudinaryManager cloud() { return Engine.instance().cloud; }
 
+    public static TimeManager time() { return Engine.instance().time; }
+
     private void instanceStartup(Context context){
         if(started){
             return;
@@ -110,6 +114,9 @@ public class Engine {
         }
         if(cloud == null){
             cloud = new CloudinaryManager(context);
+        }
+        if(time == null){
+            time = new TimeManager(context);
         }
     }
 
@@ -146,6 +153,9 @@ public class Engine {
 
         cloud.shutdown();
         cloud = null;
+
+        time.shutdown();
+        time = null;
     }
 
     public static boolean managersInitialized(){
@@ -161,7 +171,8 @@ public class Engine {
                 socket() != null    && socket().isStarted()   &&
                 user() != null      && user().isStarted()     &&
                 objective() != null && objective().isStarted()&&
-                cloud() != null     && cloud().isStarted()) {
+                cloud() != null     && cloud().isStarted()    &&
+                time() != null      && time().isStarted()){
             return true;
         }
         return false;

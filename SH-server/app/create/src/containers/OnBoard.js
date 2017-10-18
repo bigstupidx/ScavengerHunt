@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { changeState } from '../actions';
-import { CREATE_STATE, TRACK_STATE } from '../constants';
+import { CREATE_STATE, TRACK_FORM_STATE } from '../constants';
 
 import './OnBoard.css';
 import logo from '../logo.png'
@@ -29,7 +29,7 @@ const mapDispatchToProps = (dispatch) => {
             dispatch(changeState(CREATE_STATE));
         },
         onTrackClick: () => {
-            dispatch(changeState(TRACK_STATE));
+            dispatch(changeState(TRACK_FORM_STATE));
         }
     }
 }

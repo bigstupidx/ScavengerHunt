@@ -29,11 +29,13 @@ public class DataManager extends Manager{
         public static final String COLUMN_OBJECTIVE_ID = "objectiveId";
         public static final String COLUMN_OBJECTIVE_COMPLETED_TIMESTAMP = "completedTime";
         public static final String COLUMN_OBJECTIVE_PICTURE_URL = "objectiveUrl";
+        public static final String COLUMN_OBJECTIVE_FILE_NAME = "objectiveFileName";
         public static final String COLUMN_GAME_ID = "gameId";
         public static final String COLUMN_USER_ID = "userId";
         public static final String COLUMN_SYNCED = "dataSynced";
     }
 
+    //Abstraction to GameData SQLite Database
     public static class GameDataDBHelper extends SQLiteOpenHelper {
         private static final String DATABASE_NAME = "gamedata.db";
         private static final int DATABASE_VERSION = 1;
@@ -47,11 +49,12 @@ public class DataManager extends Manager{
             Timber.i("Creating DataManager Table");
             final String SQL_CREATE_GAMEDATA_TABLE = "CREATE TABLE " + GameData.TABLE_NAME + " (" +
                     GameData._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    GameData.COLUMN_OBJECTIVE_ID + " INTEGER NOT NULL, " +
+                    GameData.COLUMN_OBJECTIVE_ID + " TEXT NOT NULL, " +
                     GameData.COLUMN_OBJECTIVE_COMPLETED_TIMESTAMP + " TEXT NOT NULL, " +
                     GameData.COLUMN_OBJECTIVE_PICTURE_URL + " TEXT, " +
-                    GameData.COLUMN_GAME_ID + " INTEGER NOT NULL, " +
-                    GameData.COLUMN_USER_ID + " INTEGER NOT NULL, " +
+                    GameData.COLUMN_OBJECTIVE_FILE_NAME + " TEXT, " +
+                    GameData.COLUMN_GAME_ID + " TEXT NOT NULL, " +
+                    GameData.COLUMN_USER_ID + " TEXT NOT NULL, " +
                     GameData.COLUMN_SYNCED + " BOOLEAN NOT NULL " +
                     "); ";
 
@@ -81,12 +84,14 @@ public class DataManager extends Manager{
         this.startup();
     }
 
-    public long recordObjective(int objectiveId, String objectiveTimeStamp, String pictureUrl, int gameId, int userId){
+    //Write to database a uncompleted objective
+    public long recordObjective(String objectiveId, String objectiveTimeStamp, String pictureUrl, String fileName, String gameId, String userId){
         ContentValues values = new ContentValues();
 
         values.put(GameData.COLUMN_OBJECTIVE_ID, objectiveId);
         values.put(GameData.COLUMN_OBJECTIVE_COMPLETED_TIMESTAMP, objectiveTimeStamp);
         values.put(GameData.COLUMN_OBJECTIVE_PICTURE_URL, pictureUrl);
+        values.put(GameData.COLUMN_OBJECTIVE_FILE_NAME, fileName);
         values.put(GameData.COLUMN_GAME_ID, gameId);
         values.put(GameData.COLUMN_USER_ID, userId);
         values.put(GameData.COLUMN_SYNCED, false);
@@ -96,12 +101,14 @@ public class DataManager extends Manager{
         return newRowId;
     }
 
+    //Select all objectives where synced = false, sorted by timestamp
     public List<UnsyncedObjective> getUnsyncedObjectives() {
         String[] projection = {
                 GameData._ID,
                 GameData.COLUMN_OBJECTIVE_ID,
                 GameData.COLUMN_OBJECTIVE_COMPLETED_TIMESTAMP,
                 GameData.COLUMN_OBJECTIVE_PICTURE_URL,
+                GameData.COLUMN_OBJECTIVE_FILE_NAME,
                 GameData.COLUMN_GAME_ID,
                 GameData.COLUMN_USER_ID
         };
@@ -124,25 +131,28 @@ public class DataManager extends Manager{
         List objectives = new ArrayList<UnsyncedObjective>();
         while (cursor.moveToNext()) {
             int id = cursor.getInt(cursor.getColumnIndex(GameData._ID));
-            int objectiveId = cursor.getInt(cursor.getColumnIndex(GameData.COLUMN_OBJECTIVE_ID));
+            String objectiveId = cursor.getString(cursor.getColumnIndex(GameData.COLUMN_OBJECTIVE_ID));
             String timeStamp = cursor.getString(cursor.getColumnIndex(GameData.COLUMN_OBJECTIVE_COMPLETED_TIMESTAMP));
             String pictureUrl = cursor.getString(cursor.getColumnIndex(GameData.COLUMN_OBJECTIVE_PICTURE_URL));
-            int gameId = cursor.getInt(cursor.getColumnIndex(GameData.COLUMN_GAME_ID));
-            int userId = cursor.getInt(cursor.getColumnIndex(GameData.COLUMN_USER_ID));
+            String fileName = cursor.getString(cursor.getColumnIndex(GameData.COLUMN_OBJECTIVE_FILE_NAME));
+            String gameId = cursor.getString(cursor.getColumnIndex(GameData.COLUMN_GAME_ID));
+            String userId = cursor.getString(cursor.getColumnIndex(GameData.COLUMN_USER_ID));
 
-            UnsyncedObjective newObj = new UnsyncedObjective(id, objectiveId, timeStamp, pictureUrl, gameId, userId);
+            UnsyncedObjective newObj = new UnsyncedObjective(id, objectiveId, timeStamp, pictureUrl, fileName, gameId, userId);
             objectives.add(newObj);
         }
         return objectives;
     }
 
+    //delete an unsynced objective by id
     public void deleteSynced(int columnId){
         String selection = GameData._ID + " = ?";
         String[] selectionArg = {Integer.toString(columnId)};
         mDbWrite.delete(GameData.TABLE_NAME,selection,selectionArg);
     }
 
-    //shared preference calls
+    //***************************************SHARED-PREFERENCE CALLS************************************
+
     public void saveUserData(String id, String name, String gameKey){
         SharedPreferences sharedPreferences = mContext.getSharedPreferences("user", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPreferences.edit();

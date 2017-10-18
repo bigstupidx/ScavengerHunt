@@ -112,6 +112,7 @@ class Game:
 
         objective = Objective(location, name, description, self.key)
         self.objectives[objective.id] = objective
+        return objective
 
     def objective_list(self):
         return self.objectives.values()

@@ -9,6 +9,9 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 
+import com.yan.sh.sh_android.engine.Engine;
+import com.yan.sh.sh_android.engine.EngineGlobal;
+
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
@@ -39,12 +42,15 @@ public class HardwareManager extends Manager{
         isLocationEnabled();
     }
 
+
+    //Check if internet is available
     private boolean internetAvailable(Context context){
         ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return (activeNetworkInfo != null);
     }
 
+    //Check if network can support all potential operations
     private void hasActiveInternetConnection() {
         //Pings google on a background thread, checks to make sure wifi is not spotty despite connection
         userQueue.execute(new Runnable() {
@@ -74,6 +80,7 @@ public class HardwareManager extends Manager{
         return canPingGoogle;
     }
 
+    //check if location is enabled
     public boolean isLocationEnabled(){
         LocationManager locationManager = (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         if(locationEnabled != locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)){
@@ -85,7 +92,11 @@ public class HardwareManager extends Manager{
 
     private void onNetworkChange(){
         Intent networkChange = new Intent();
-        networkChange.setAction("NETWORK_CHANGE");
+        networkChange.setAction(EngineGlobal.LOCAL_NETWORK_CHANGE);
+
+        if(hasNetworkAccess()){
+            Engine.network().runQueue();
+        }
 
         //send local broadcast here
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
@@ -94,7 +105,7 @@ public class HardwareManager extends Manager{
 
     private void onLocationChange(){
         Intent locationChange = new Intent();
-        locationChange.setAction("LOCATION_CHANGE");
+        locationChange.setAction(EngineGlobal.LOCAL_LOCATION_CHANGE);
 
         //send local broadcast
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);

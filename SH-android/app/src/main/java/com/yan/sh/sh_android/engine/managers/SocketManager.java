@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.support.v4.content.LocalBroadcastManager;
 
 import com.yan.sh.sh_android.engine.Engine;
+import com.yan.sh.sh_android.engine.EngineGlobal;
 import com.yan.sh.sh_android.engine.objects.Objective;
 
 import org.json.JSONException;
@@ -29,13 +30,11 @@ public class SocketManager extends Manager {
 
     final private String domain = "https://glacial-garden-48114.herokuapp.com/";
 
-    ScheduledExecutorService serialQueue;
     private Socket socketIO;
     private Context mContext;
 
     public SocketManager(Context context){
         this.startup();
-        serialQueue = Executors.newSingleThreadScheduledExecutor();
         mContext = context;
 
         try{
@@ -45,7 +44,7 @@ public class SocketManager extends Manager {
         }
     }
 
-    //send completed objective to
+    //send socket messages to the server
     public void sendSocketMessage(final String message, final JSONObject arguments){
         if(socketIO == null || !socketIO.connected()){
             closeSocket();
@@ -60,6 +59,7 @@ public class SocketManager extends Manager {
        ;
     }
 
+    //send a message indicating a new player, this will associate our socketId with the player
     public void sendNewPlayerMessage(final String userName){
         try{
             JSONObject data = new JSONObject();
@@ -73,6 +73,7 @@ public class SocketManager extends Manager {
         }
     }
 
+    //send a message indicating the return of a previous player
     public void sendReturningPlayerMessage(){
         try {
             JSONObject data = new JSONObject();
@@ -87,6 +88,7 @@ public class SocketManager extends Manager {
 
     }
 
+    //send a message notifying the server of a complete objective
     public void sendCompletedObjective(Objective objective){
         try{
             JSONObject data = new JSONObject();
@@ -101,6 +103,7 @@ public class SocketManager extends Manager {
         }
     }
 
+    //Open the socket connection
     public void openSocket(){
         if(socketIO == null){
             try {
@@ -126,6 +129,7 @@ public class SocketManager extends Manager {
             Timber.e(ex, "JSON error");
         }
 
+        //Specify calls for different socket messages
         socketIO.on(Socket.EVENT_CONNECT, new Emitter.Listener(){
             @Override
             public void call(Object... args) {
@@ -141,8 +145,10 @@ public class SocketManager extends Manager {
                         Engine.user().setUuid(json.getJSONObject("data").getString("id"));
                         Engine.user().setGameKey(Engine.game().getGameCode());
                     } else if (json != null && json.has("data") && json.getJSONObject("data").has("objectives complete")) {
+                        //If returning user, the connection will also include previously completed objectives
                         Timber.i(json.toString());
-                        Engine.objective().updateObjectives(json.getJSONObject("data").getJSONArray("objectives complete"));
+                        //TODO: Should be retriving JSON Array!!
+                        Engine.objective().updateObjectives(json.getJSONObject("data").getJSONObject("objectives complete"));
                     }
                 } catch (JSONException ex){
                     Timber.e(ex, "JSON exception");
@@ -190,7 +196,7 @@ public class SocketManager extends Manager {
 
     private void onRankUpdate(){
         Intent rankUpdate = new Intent();
-        rankUpdate.setAction("RANK_CHANGE");
+        rankUpdate.setAction(EngineGlobal.LOCAL_RANK_CHANGE);
 
         //send local broadcast here
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(mContext);
